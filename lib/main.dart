@@ -1,13 +1,20 @@
+import 'package:event_hub_app/services/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'views/getting_started_view.dart';
 import 'views/home_view.dart';
 import 'views/event_creation_view.dart';
 import 'views/login_view.dart';
 import 'views/sign_up_view.dart';
+import 'views/favorites_view.dart';
+import 'database/database_helper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Initialize the database
+  await DatabaseHelper.initializeDatabase();
   runApp(const EventHubApp());
 }
+
 
 class EventHubApp extends StatelessWidget {
   const EventHubApp({Key? key}) : super(key: key);
@@ -40,6 +47,7 @@ class EventHubApp extends StatelessWidget {
         '/login': (context) => LoginView(),
         '/signup': (context) => SignUpView(),
         '/createEvent': (context) => const EventCreationView(),
+        '/favorites': (context) => const FavoritesView(favoriteEvents: []),
       },
     );
   }

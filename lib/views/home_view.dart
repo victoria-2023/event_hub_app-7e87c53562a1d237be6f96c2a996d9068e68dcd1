@@ -3,7 +3,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'event_creation_view.dart';
 import 'event_detail_view.dart';
 import 'user_profile_view.dart';
-import 'settings_view.dart'; // Make sure to have a settings view implemented
+import 'settings_view.dart';
+import 'favorites_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -16,6 +17,7 @@ class _HomeViewState extends State<HomeView> {
   late DateTime _selectedDay;
   late DateTime _focusedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  List<String> notifications = ["New event added", "Reminder: Theatre Play tomorrow!"]; // Example notifications
 
   @override
   void initState() {
@@ -34,8 +36,35 @@ class _HomeViewState extends State<HomeView> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const UserProfileView()));
   }
 
+  void _navigateToFavorites() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const FavoritesView(favoriteEvents: [],)));
+  }
+
   void _navigateToSettings() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsView()));
+  }
+
+  void _showNotifications() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notifications'),
+        content: notifications.isNotEmpty
+            ? Column(
+          mainAxisSize: MainAxisSize.min,
+          children: notifications.map((notification) => Text(notification)).toList(),
+        )
+            : const Text("No new notifications"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -48,9 +77,7 @@ class _HomeViewState extends State<HomeView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Navigate to notifications view
-            },
+            onPressed: _showNotifications,  // Updated to show notifications
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.menu, color: Colors.black),
@@ -59,17 +86,19 @@ class _HomeViewState extends State<HomeView> {
                 case 'Profile':
                   _navigateToProfile();
                   break;
+                case 'Favorites':
+                  _navigateToFavorites();
+                  break;
                 case 'Settings':
                   _navigateToSettings();
                   break;
                 case 'Log Out':
                   Navigator.popUntil(context, ModalRoute.withName('/'));
                   break;
-              // Add other cases as per requirement
               }
             },
             itemBuilder: (BuildContext context) {
-              return {'Profile', 'Settings', 'Ratings', 'Log Out'}.map((String choice) {
+              return {'Profile', 'Favorites', 'Settings', 'Log Out'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
