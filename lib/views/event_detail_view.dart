@@ -1,17 +1,15 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:image_picker/image_picker.dart'; // Import for photo upload functionality
-// For date formatting
+// Required for using Clipboard functionality for sharing
+import 'package:share/share.dart'; // Flutter package for sharing content
 
 class EventDetailView extends StatefulWidget {
   final String eventName;
-  final List<String> imagePaths; // Accepts multiple image paths for displaying images
+  final String imagePath; // Using a single image path for the cover image
 
   const EventDetailView({
     Key? key,
     required this.eventName,
-    required this.imagePaths, required imagePath,
+    required this.imagePath, required imagePaths,
   }) : super(key: key);
 
   @override
@@ -19,11 +17,7 @@ class EventDetailView extends StatefulWidget {
 }
 
 class _EventDetailViewState extends State<EventDetailView> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  DateTime? _selectedDate;
-  XFile? _imageFile; // Variable to store the image file
-  final ImagePicker _picker = ImagePicker(); // Image picker instance
+  bool isSaved = false; // State to track if the event is saved
 
   @override
   Widget build(BuildContext context) {
@@ -35,103 +29,47 @@ class _EventDetailViewState extends State<EventDetailView> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (widget.imagePaths.isNotEmpty)
-                SizedBox(
-                  height: 250,
-                  child: PageView.builder(
-                    itemCount: widget.imagePaths.length,
-                    itemBuilder: (context, index) => Image.asset(
-                      widget.imagePaths[index],
-                      fit: BoxFit.cover,
-                    ),
+        child: Column(
+          children: [
+            Image.asset(
+              widget.imagePath, // Displaying the event cover image
+              width: double.infinity,
+              height: 250,
+              fit: BoxFit.cover,
+            ),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Event Description Here', // Placeholder text
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    color: Colors.red,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      isSaved = !isSaved;
+                    });
+                    // Additional logic to handle saving the event
+                  },
                 ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Event Title',
-                  border: OutlineInputBorder(),
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () {
+                    Share.share('Check out this event "${widget.eventName}" at ${widget.imagePath}');
+                  },
                 ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Event Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 5,
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton(
-                onPressed: () => _pickImage(),
-                child: const Text('Upload Event Image'),
-              ),
-              if (_imageFile != null)
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: FileImage(File(_imageFile!.path)), // Display the selected image
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _createEvent,
-                child: const Text('Save Event'),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery); // Pick image
-    if (image != null) {
-      setState(() {
-        _imageFile = image;
-      });
-    }
-  }
-
-  void _createEvent() {
-    if (_titleController.text.isNotEmpty && _descriptionController.text.isNotEmpty) {
-      // Assuming logic to save the event to a database or state management solution
-
-      // Show confirmation message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event successfully created')),
-      );
-
-      // Optionally clear the form or navigate away
-      Navigator.pop(context);
-    } else {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<DateTime?>('_selectedDate', _selectedDate));
   }
 }

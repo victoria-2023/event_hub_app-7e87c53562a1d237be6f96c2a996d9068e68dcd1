@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For date formatting
-import 'package:image_picker/image_picker.dart'; // For image picking
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class EventCreationView extends StatefulWidget {
   const EventCreationView({Key? key}) : super(key: key);
@@ -14,13 +14,13 @@ class _EventCreationViewState extends State<EventCreationView> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   DateTime? _selectedDate;
-  XFile? _imageFile; // Variable to store the image file
-  final ImagePicker _picker = ImagePicker(); // Image picker instance
+  XFile? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF2EE), // Consistent beige background
+      backgroundColor: const Color(0xFFFAF2EE),
       appBar: AppBar(
         title: const Text('Create Event', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.transparent,
@@ -53,9 +53,7 @@ class _EventCreationViewState extends State<EventCreationView> {
               OutlinedButton(
                 onPressed: () => _selectDate(context),
                 child: Text(
-                  _selectedDate == null
-                      ? 'Choose Date'
-                      : 'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
+                  _selectedDate == null ? 'Choose Date' : 'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
                 ),
               ),
               const SizedBox(height: 16),
@@ -75,7 +73,7 @@ class _EventCreationViewState extends State<EventCreationView> {
                 ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => _createEvent(),
+                onPressed: _createEvent,
                 child: const Text('Add Event'),
               ),
             ],
@@ -109,15 +107,12 @@ class _EventCreationViewState extends State<EventCreationView> {
   }
 
   void _createEvent() {
-    if (_titleController.text.isNotEmpty &&
-        _descriptionController.text.isNotEmpty &&
-        _selectedDate != null &&
-        _imageFile != null) {
-      // Display the confirmation message
+    if (_titleController.text.isNotEmpty && _descriptionController.text.isNotEmpty && _selectedDate != null) {
+      // Show confirmation message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Event Created')),
       );
-      // Reset the form after creating the event
+      // Clear the inputs
       _titleController.clear();
       _descriptionController.clear();
       setState(() {
@@ -125,7 +120,7 @@ class _EventCreationViewState extends State<EventCreationView> {
         _imageFile = null;
       });
     } else {
-      // Display an error if the form is not properly filled
+      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
